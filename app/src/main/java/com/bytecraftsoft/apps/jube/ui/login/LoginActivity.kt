@@ -1,6 +1,7 @@
 package com.bytecraftsoft.apps.jube.ui.login
 
 import android.app.Activity
+import android.content.Intent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -15,7 +16,9 @@ import android.widget.EditText
 import android.widget.Toast
 import com.bytecraftsoft.apps.jube.databinding.ActivityLoginBinding
 import com.bytecraftsoft.apps.jube.R
+import com.bytecraftsoft.apps.jube.register_user
 import com.bytecraftsoft.apps.jube.auth
+import com.bytecraftsoft.apps.jube.email_verify
 import com.google.firebase.auth.FirebaseUser
 
 class LoginActivity : AppCompatActivity() {
@@ -35,6 +38,15 @@ class LoginActivity : AppCompatActivity() {
         setupObservers()
         setupListeners()
     }
+
+    /*override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        if (currentUser?.displayName != null && currentUser?.isEmailVerified != true) {
+            startActivity(Intent(this, email_verify::class.java))
+            finish()
+        }
+    }*/
 
     private fun setupObservers() {
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer { loginState ->
@@ -100,16 +112,27 @@ class LoginActivity : AppCompatActivity() {
                     binding.password.text.toString()
                 )
             }
+
+            binding.signup?.setOnClickListener {
+                startActivity(Intent(this@LoginActivity, register_user::class.java))
+            }
         }
     }
 
     private fun authenticateUser(email: String, password: String) {
+        val email = "$email@student.bahria.edu.pk"
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
                     val user = auth.currentUser
+                    if(user?.isEmailVerified == false){
+                        val email = user.email
+                        Toast.makeText(this, "$email is not Verified", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, email_verify::class.java))
+                        finish()
+                    }
                     Toast.makeText(this, "Authentication Successful", Toast.LENGTH_SHORT).show()
                     updateUI(user)
                     finish()
@@ -135,6 +158,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun updateUI(user: FirebaseUser?) {
         // TODO: Implement this method to update UI after login
+
     }
 }
 

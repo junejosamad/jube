@@ -106,20 +106,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    override fun onStart() {
-        super.onStart()
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            Toast.makeText(this, "User is: $currentUser", Toast.LENGTH_SHORT).show()
-            reload()
-        } else {
-            startActivity(Intent(this, LoginActivity::class.java))
-        }
-    }
 
-    private fun reload() {
-        // Implement your reload logic here
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun readVideoUrls() {
@@ -139,7 +126,28 @@ class MainActivity : AppCompatActivity() {
                 Log.d("MainActivity", "Error getting documents: ", exception)
             }
     }
+    override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            //Toast.makeText(this, "User is: $currentUser", Toast.LENGTH_SHORT).show()
+        } else {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        VideoAdapter.activePlayers.forEach { it.release() }
+    }
 
+    override fun onPause() {
+        super.onPause()
+        VideoAdapter.activePlayers.forEach { it.pause() }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        VideoAdapter.activePlayers.forEach { it.play() }
+    }
 }

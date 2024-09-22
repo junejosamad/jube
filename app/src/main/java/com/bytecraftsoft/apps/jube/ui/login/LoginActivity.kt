@@ -134,7 +134,7 @@ class LoginActivity : AppCompatActivity() {
                         finish()
                     }
                     Toast.makeText(this, "Authentication Successful", Toast.LENGTH_SHORT).show()
-                    updateUI(user)
+                    //updateUI(user)
                     finish()
                 } else {
                     // If sign in fails, display a message to the user.

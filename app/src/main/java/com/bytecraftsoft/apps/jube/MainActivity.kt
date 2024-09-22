@@ -7,6 +7,8 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -19,13 +21,14 @@ import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bytecraftsoft.apps.jube.ui.login.LoginActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
 var auth: FirebaseAuth = Firebase.auth
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity(){
     private var db = Firebase.firestore
     private lateinit var recyclerView: RecyclerView
     private var videoUrls: MutableList<String> = mutableListOf()
@@ -37,10 +40,43 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        /*ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }*/
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = R.id.navigation_notifications
+        bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.navigation_home -> {
+                    // Handle Home button click
+                    startActivity(Intent(this, home::class.java))
+                    overridePendingTransition(0, 0)
+                    finish()
+                    overridePendingTransition(0, 0)
+                    true
+                }
+
+                R.id.navigation_notifications -> {
+                    // Handle Notifications button click
+//                    Toast.makeText(this, "Notifications button clicked", Toast.LENGTH_SHORT).show()
+//                    startActivity(Intent(this, MainActivity::class.java))
+                    true
+                }
+
+                R.id.navigation_profile -> {
+                    // Handle Profile button click
+                    startActivity(Intent(this, User_Profile::class.java))
+                    overridePendingTransition(0, 0)
+                    finish()
+                    overridePendingTransition(0, 0)
+                    true
+                }
+
+                else -> { false }
+            }
         }
 
         readVideoUrls()
@@ -114,7 +150,7 @@ class MainActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { result ->
                 videoUrls.clear()
-                for (document in result) {
+                for (document in result.reversed()) {
                     val videoUrl = document.getString("url")
                     if (videoUrl != null) {
                         videoUrls.add(videoUrl)
@@ -150,4 +186,5 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         VideoAdapter.activePlayers.forEach { it.play() }
     }
+
 }

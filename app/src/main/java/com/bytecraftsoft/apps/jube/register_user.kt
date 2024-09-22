@@ -11,14 +11,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bytecraftsoft.apps.jube.ui.login.LoginActivity
+import com.google.firebase.Firebase
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.firestore
 
 class register_user : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +41,8 @@ class register_user : AppCompatActivity() {
         val name = findViewById<EditText>(R.id.register_name)
         val password = findViewById<EditText>(R.id.register_password)
         val registerBtn = findViewById<Button>(R.id.registerBtn)
+
+
 
         registerBtn.setOnClickListener {
             val enrollmentText = enrollment.text.toString().trim()
@@ -59,6 +64,13 @@ class register_user : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = auth.currentUser
+                    val dbUsers = hashMapOf(
+                        "uid" to user?.uid,
+                        "enrollment" to enrollmentText,
+                        "name" to nameText
+                    )
+                    db.collection("users").document(user?.uid ?: "")
+                        .set(dbUsers)
                     user?.let {
                         updateUserProfile(it, nameText)
                         sendEmailVerification(it)

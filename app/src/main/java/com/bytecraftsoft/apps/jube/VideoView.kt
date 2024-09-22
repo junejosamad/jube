@@ -4,7 +4,9 @@ import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +23,7 @@ class VideoAdapter(private val videoUrls: List<String>, private val recyclerView
     class VideoViewHolder(val playerView: PlayerView) : RecyclerView.ViewHolder(playerView) {
         var player: ExoPlayer? = null
 
+        @OptIn(UnstableApi::class)
         fun bind(videoUrl: String) {
             if (player == null) {
                 player = ExoPlayer.Builder(playerView.context).build().apply {
@@ -32,6 +35,7 @@ class VideoAdapter(private val videoUrls: List<String>, private val recyclerView
             player?.setMediaItem(mediaItem)
             player?.prepare()
             Log.d("VideoAdapter", "Binding video: $videoUrl")
+
         }
 
         fun releasePlayer() {
@@ -43,10 +47,14 @@ class VideoAdapter(private val videoUrls: List<String>, private val recyclerView
 
         fun play() {
             player?.play()
+            loopVideo()
         }
 
         fun pause() {
             player?.pause()
+        }
+        fun loopVideo() {
+            player?.repeatMode = ExoPlayer.REPEAT_MODE_ONE
         }
     }
 
@@ -111,6 +119,4 @@ class VideoAdapter(private val videoUrls: List<String>, private val recyclerView
         val screenHeight = context.resources.displayMetrics.heightPixels
         return itemRect.bottom > 100 && itemRect.top < screenHeight - 50
     }
-
-
 }
